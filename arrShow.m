@@ -309,6 +309,7 @@ classdef arrShow < handle
             
             % change figure icon :-)
             warning('off','MATLAB:HandleGraphics:ObsoletedProperty:JavaFrame');
+            warning('off','MATLAB:ui:javaframe:PropertyToBeRemoved');
             jframe=get(obj.fh,'javaframe');
             jIcon=javax.swing.ImageIcon(fullfile(iconPath,'figure.png'));
             jframe.setFigureIcon(jIcon);
