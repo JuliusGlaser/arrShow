@@ -11,6 +11,7 @@ classdef asWindowingClass < handle
     
     properties (GetAccess = private, SetAccess = private)
         
+        parentObj;
         % handle
         ph       = [];          % panel handle        
         ih    = [];             % image handle
@@ -106,6 +107,7 @@ classdef asWindowingClass < handle
     
     methods (Access = public)
         function obj = asWindowingClass(...
+                parent,...
                 parentPanelHandle,...
                 panelPosition,...
                 updFigCb,...
@@ -113,6 +115,7 @@ classdef asWindowingClass < handle
                 getPhaseColormapCb,...
                 icons)
             
+            obj.parentObj = parent;
             obj.updFigCb    = updFigCb;
             obj.apply2allCb = apply2allCb;
             obj.getPhaseColormapCb = getPhaseColormapCb;
@@ -376,20 +379,24 @@ classdef asWindowingClass < handle
             
             % get reference image data
             refImage = get(obj.ih,'CData');
-            if size(refImage,3) == 3
+            if size(refImage,3) == 3 
                 % assume that we are dealing with an rgb array, made from a
                 % complex image. So get complex image from the axes
                 % UserData
-                obj.isComplex = true;
-                ud = get(obj.ah,'UserData');
-                obj.complexRef = ud.cplxImg;
+                if ~obj.parentObj.getUseColor
+                    obj.isComplex = true;
+                    ud = get(obj.ah,'UserData');
+                    obj.complexRef = ud.cplxImg;
+                end
             else
                 obj.isComplex = false;
             end
             
             % Update the data range properties (imageMin, max, etc)
             % according to the choosen rangeCalcMethod
-            obj.updateDataRange()
+            if ~obj.parentObj.getUseColor
+                obj.updateDataRange()
+            end
             
             if ~obj.isInitialized
                 obj.updateCWtext();

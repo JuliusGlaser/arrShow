@@ -5,10 +5,15 @@ function [axesHandle, imageHandle] = imageCollage(...
     keepAspectRatio,...
     keepTrueSize,...
     useQuiver,...
+    useColor,...
     forceComplex)
 
 % get size of the image array
 [dimY, dimX, noFrames] = size(imgArr);
+
+if noFrames == 3 && useColor
+    noFrames = 1;
+end
 
 % delete all uiobjects from parentPanelH
 oldHandles = get(parentPanelH,'Children');
@@ -58,7 +63,12 @@ for n=1:noFrames
         pixelPos = get(ah,'position');
         set(ah,'position',[pixelPos(1:2), dimY, dimX]);
     end
-    currImg = imgArr(:,:,n);
+
+    if useColor
+        currImg = imgArr;
+    else
+        currImg = imgArr(:,:,n);
+    end
     
     if useQuiver              
         imageHandle(n) = quiver(real(currImg),imag(currImg),...

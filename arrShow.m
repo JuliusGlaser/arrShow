@@ -131,7 +131,7 @@ classdef arrShow < handle
         % The actual framerate can be assumed to
         % be lower.
         
-        
+        useColor        = false;               % if image is a colored image and one dimension is rgb
         stdColormap     = 'Gray(256)';         % standard colormap
         phaseColormap   = 'martin_phase(256)'; % standard colormap for phase display
         
@@ -356,6 +356,7 @@ classdef arrShow < handle
             % image windowing object (the center and width slider i.e. contrast
             % and brightness)
             obj.window = asWindowingClass(...
+                obj,...
                 obj.cph,...
                 obj.WINDOWING_POS,...
                 @obj.updFig,...
@@ -1688,7 +1689,22 @@ classdef arrShow < handle
                 end
             end
         end
-        
+
+        function toggleUseColor(obj) 
+            switch get(obj.mbh.useColor,'Checked')
+                case 'off'
+                    set(obj.mbh.useColor,'Checked','on');
+                case 'on'
+                    set(obj.mbh.useColor,'Checked','off');
+            end
+            obj.useColor = ~obj.useColor;
+            obj.updFig();
+        end
+
+        function useColor = getUseColor(obj)
+            useColor = obj.useColor;
+        end
+
         function cMap = getColormap(obj, mapType, convertToMatrix)
             % mapType can be 'current, standard or phase'
             
@@ -2821,7 +2837,10 @@ classdef arrShow < handle
                 'Checked','off');
             obj.mbh.quiver = uimenu(mb_view,'Label','Show vector plot' ,...
                 'callback',@(src,evnt)obj.toggleUseQuiver(),...
-                'Checked','off');            
+                'Checked','off');
+            obj.mbh.useColor = uimenu(mb_view,'Label','View as RGB' ,...
+                'callback',@(src,evnt)obj.toggleUseColor(),...
+                'Checked','off');
             
             % zoom
             cmh_zoom = uimenu(mb_view,'Label','Set zoom' ,...
@@ -3209,6 +3228,7 @@ classdef arrShow < handle
             uimenu(menuHandle,'Label','Load'         ,'callback',@(src,evnt)obj.loadColormap);
             uimenu(menuHandle,'Label','Store'        ,'callback',@(src,evnt)obj.storeColormap);
             
+            uimenu(menuHandle,'Label','Turbo'        ,'callback' ,@(src,evnt)cb('turbo(256)'));
             uimenu(menuHandle,'Label','Gray (g)'     ,'callback',@(src,evnt)cb('gray(256)'), 'Separator', 'on');
             uimenu(menuHandle,'Label','Gray periodic','callback',@(src,evnt)cb('gray_periodic(256)'));
             uimenu(menuHandle,'Label','martin_phase' ,'callback',@(src,evnt)cb('martin_phase(256)'));
@@ -3476,6 +3496,7 @@ classdef arrShow < handle
                     aspectRatio,...
                     trueSize,...
                     useQuiver,...
+                    obj.useColor,...
                     forceComplex);
             catch ME
                 obj.errorHandlerInvalidData(ME);
